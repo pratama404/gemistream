@@ -1,0 +1,7 @@
+streamlit
+google-generativeai
+google-cloud-firestore
+google-auth
+python-dotenv
+requests
+pillow
