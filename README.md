@@ -1,12 +1,23 @@
 # Gemistream
 
-Gemistream is a Streamlit application designed to [brief description of what your application does]. This project aims to [brief description of the project's goals or objectives].
+Gemini's functionalities are seamlessly integrated into Tera Chat to enhance user interactions and experiences. The main integration revolves around two key features: "Tanya Tera" and "Cerita Tera."
+Tanya Tera (Ask Tera):
+Users can prompt Tera by typing their questions into the text input provided.
+Once the user clicks the "jawab dong!" (answer, please!) button, Gemini's generative model is invoked to generate a response based on the input prompt.
+The generated response is then displayed to the user in the app interface, providing them with relevant and engaging answers to their queries.
+Cerita Tera (Tera's Story):
+Users can prompt Tera by uploading an image along with a message describing the scene or context.
+Upon clicking the "Ayo Tera!" (Let's go, Tera!) button, Gemini's generative model processes the image and text prompt to create a unique story.
+The generated story is presented to the user, allowing them to explore imaginative narratives inspired by their input.
+In both scenarios, Gemini's capabilities are leveraged to enhance the interactivity and depth of user engagement within Tera Chat. Users can prompt Tera in various ways, including asking questions, providing image-based prompts, or combining both text and images to elicit personalized responses and stories from Tera.
 
 ## Features
 
-- Feature 1
-- Feature 2
-- Feature 3
+- Auth firebase
+- Chatbot Gemini
+- Chatbot vision pro
+- tanya tera
+- cerita tera
 
 ## Prerequisites
 
