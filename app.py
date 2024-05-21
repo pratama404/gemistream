@@ -54,7 +54,7 @@ def login(email, password):
     return response.json()
 
 def app():
-    st.title('Welcome to :violet[Pondering] 😅')
+    st.title('Register/ Login dulu yah  :violet[kawan] 😅')
 
     choice = st.selectbox('Login/Signup', ['Login', 'Sign Up'])
     if choice == 'Login':
@@ -65,6 +65,8 @@ def app():
             result = login(email, password)
             if 'idToken' in result:
                 st.success('Login successful')
+                st.session_state['login'] = True
+                st.experimental_rerun()  # Refresh the app to update the state
             else:
                 st.error(result.get('error', {}).get('message', 'An error occurred'))
 
@@ -88,91 +90,94 @@ def save_to_firestore(collection, data):
         st.error(f"An error occurred: {e}")
 
 def main():
-    gemini_pro, gemini_vision = st.tabs(["Tanya Tera", "Cerita Tera"])
+    if 'login' not in st.session_state:
+        st.session_state['login'] = False
 
-    with gemini_pro:
+    if not st.session_state['login']:
         app()
+    else:
+        gemini_pro, gemini_vision = st.tabs(["Tanya Tera", "Cerita Tera"])
 
-    with gemini_vision:
-        st.header("Yuk Chat bareng tera")
-        st.write("")
-
-        prompt = st.text_input("tanya apa pun tera bakal jawab ...", placeholder="Prompt", label_visibility="visible")
-        model = genai.GenerativeModel("gemini-pro")
-
-        if st.button("jawab dong!", use_container_width=True):
-            response = model.generate_content(prompt)
-
-            st.write("")
-            st.header(":blue[Response]")
+        with gemini_pro:
+            st.header("Yuk Chat bareng tera")
             st.write("")
 
-            st.markdown(response.text)
-            
-            # Save to Firestore
-            save_to_firestore("gemini_pro_responses", {"prompt": prompt, "response": response.text})
+            prompt = st.text_input("tanya apa pun tera bakal jawab ...", placeholder="Prompt", label_visibility="visible")
+            model = genai.GenerativeModel("gemini-pro")
 
-    with gemini_vision:
-        st.header("Yuk Kirim fotomu ke tera")
-        st.write("Tera bakal Ceritain kenangan indah di fotomu ...")
+            if st.button("jawab dong!", use_container_width=True):
+                response = model.generate_content(prompt)
 
-        image_prompt = st.text_input("sampein pesan di foto mu ...", placeholder="Prompt", label_visibility="visible")
-        uploaded_file = st.file_uploader("Kirim Fotonya juga yaaah ...", accept_multiple_files=False, type=["png", "jpg", "jpeg", "img", "webp"])
+                st.write("")
+                st.header(":blue[Response]")
+                st.write("")
 
-        if uploaded_file is not None:
-            st.image(Image.open(uploaded_file), use_column_width=True)
+                st.markdown(response.text)
+                
+                # Save to Firestore
+                save_to_firestore("gemini_pro_responses", {"prompt": prompt, "response": response.text})
 
-            st.markdown("""
-                <style>
-                        img {
-                            border-radius: 10px;
-                        }
-                </style>
-                """, unsafe_allow_html=True)
+        with gemini_vision:
+            st.header("Yuk Kirim fotomu ke tera")
+            st.write("Tera bakal Ceritain kenangan indah di fotomu ...")
 
-        if st.button("Ayo Tera!", use_container_width=True):
-            model = genai.GenerativeModel("gemini-pro-vision")
+            image_prompt = st.text_input("sampein pesan di foto mu ...", placeholder="Prompt", label_visibility="visible")
+            uploaded_file = st.file_uploader("Kirim Fotonya juga yaaah ...", accept_multiple_files=False, type=["png", "jpg", "jpeg", "img", "webp"])
 
             if uploaded_file is not None:
-                if image_prompt != "":
-                    image = Image.open(uploaded_file)
+                st.image(Image.open(uploaded_file), use_column_width=True)
 
-                    response = model.generate_content(
-                        glm.Content(
-                            parts=[
-                                glm.Part(text=image_prompt),
-                                glm.Part(
-                                    inline_data=glm.Blob(
-                                        mime_type="image/jpeg",
-                                        data=image_to_byte_array(image)
+                st.markdown("""
+                    <style>
+                            img {
+                                border-radius: 10px;
+                            }
+                    </style>
+                    """, unsafe_allow_html=True)
+
+            if st.button("Ayo Tera!", use_container_width=True):
+                model = genai.GenerativeModel("gemini-pro-vision")
+
+                if uploaded_file is not None:
+                    if image_prompt != "":
+                        image = Image.open(uploaded_file)
+
+                        response = model.generate_content(
+                            glm.Content(
+                                parts=[
+                                    glm.Part(text=image_prompt),
+                                    glm.Part(
+                                        inline_data=glm.Blob(
+                                            mime_type="image/jpeg",
+                                            data=image_to_byte_array(image)
+                                        )
                                     )
-                                )
-                            ]
+                                ]
+                            )
                         )
-                    )
 
-                    response.resolve()
+                        response.resolve()
 
-                    st.write("")
-                    st.write(":blue[Response]")
-                    st.write("")
+                        st.write("")
+                        st.write(":blue[Response]")
+                        st.write("")
 
-                    st.markdown(response.text)
-                    
-                    # Save to Firestore
-                    save_to_firestore("gemini_vision_responses", {
-                        "image_prompt": image_prompt,
-                        "response": response.text,
-                        "image_name": uploaded_file.name
-                    })
+                        st.markdown(response.text)
+                        
+                        # Save to Firestore
+                        save_to_firestore("gemini_vision_responses", {
+                            "image_prompt": image_prompt,
+                            "response": response.text,
+                            "image_name": uploaded_file.name
+                        })
+
+                    else:
+                        st.write("")
+                        st.header(":red[Ceritain dulu dong]")
 
                 else:
                     st.write("")
-                    st.header(":red[Ceritain dulu dong]")
-
-            else:
-                st.write("")
-                st.header(":red[Kirim Gambar Dulu Dong]")
+                    st.header(":red[Kirim Gambar Dulu Dong]")
 
 if __name__ == "__main__":
     main()
