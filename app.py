@@ -54,7 +54,7 @@ def login(email, password):
     return response.json()
 
 def app():
-    st.title('Register/ Login dulu yah  :violet[kawan] 😅')
+    st.title('Register/ Login dulu yah  :violet[hehe...] 😅')
 
     choice = st.selectbox('Login/Signup', ['Login', 'Sign Up'])
     if choice == 'Login':
