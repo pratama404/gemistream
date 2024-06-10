@@ -85,7 +85,8 @@ def app():
 def save_to_firestore(collection, data):
     try:
         doc_ref = db.collection(collection).add(data)
-        st.success(f"Data successfully saved to Firestore: {doc_ref.id}")
+        doc_id = doc_ref[1].id  # Extract the document ID from the tuple
+        st.success(f"Data successfully saved to Firestore: {doc_id}")
     except Exception as e:
         st.error(f"An error occurred: {e}")
 
