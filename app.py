@@ -107,16 +107,21 @@ def main():
             model = genai.GenerativeModel("gemini-pro")
 
             if st.button("jawab dong!", use_container_width=True):
-                response = model.generate_content(prompt)
+                try:
+                    response = model.generate_content(prompt)
+                    st.write("")
+                    st.header(":blue[Response]")
+                    st.write("")
 
-                st.write("")
-                st.header(":blue[Response]")
-                st.write("")
-
-                st.markdown(response.text)
-                
-                # Save to Firestore
-                save_to_firestore("gemini_pro_responses", {"prompt": prompt, "response": response.text})
+                    if hasattr(response, 'text'):
+                        st.markdown(response.text)
+                        # Save to Firestore
+                        save_to_firestore("gemini_pro_responses", {"prompt": prompt, "response": response.text})
+                    else:
+                        st.error("The response does not contain text.")
+                except Exception as e:
+                    st.error(f"An error occurred: {e}")
+                    st.write(f"Full response: {response}")
 
         with gemini_vision:
             st.header("Yuk Kirim fotomu ke tera")
@@ -143,34 +148,40 @@ def main():
                     if image_prompt != "":
                         image = Image.open(uploaded_file)
 
-                        response = model.generate_content(
-                            glm.Content(
-                                parts=[
-                                    glm.Part(text=image_prompt),
-                                    glm.Part(
-                                        inline_data=glm.Blob(
-                                            mime_type="image/jpeg",
-                                            data=image_to_byte_array(image)
+                        try:
+                            response = model.generate_content(
+                                glm.Content(
+                                    parts=[
+                                        glm.Part(text=image_prompt),
+                                        glm.Part(
+                                            inline_data=glm.Blob(
+                                                mime_type="image/jpeg",
+                                                data=image_to_byte_array(image)
+                                            )
                                         )
-                                    )
-                                ]
+                                    ]
+                                )
                             )
-                        )
 
-                        response.resolve()
+                            response.resolve()
 
-                        st.write("")
-                        st.write(":blue[Response]")
-                        st.write("")
+                            st.write("")
+                            st.write(":blue[Response]")
+                            st.write("")
 
-                        st.markdown(response.text)
-                        
-                        # Save to Firestore
-                        save_to_firestore("gemini_vision_responses", {
-                            "image_prompt": image_prompt,
-                            "response": response.text,
-                            "image_name": uploaded_file.name
-                        })
+                            if hasattr(response, 'text'):
+                                st.markdown(response.text)
+                                # Save to Firestore
+                                save_to_firestore("gemini_vision_responses", {
+                                    "image_prompt": image_prompt,
+                                    "response": response.text,
+                                    "image_name": uploaded_file.name
+                                })
+                            else:
+                                st.error("The response does not contain text.")
+                        except Exception as e:
+                            st.error(f"An error occurred: {e}")
+                            st.write(f"Full response: {response}")
 
                     else:
                         st.write("")
